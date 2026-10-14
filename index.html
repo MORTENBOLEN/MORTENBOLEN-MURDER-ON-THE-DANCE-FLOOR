@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0505">
+<title>MURDER ON THE DANCE FLOOR</title>
+<style>
+:root{
+  --bg:#0a0505; --fg:#e9dcd8; --dim:#8a6f6a; --red:#c4161c; --line:#2a1212;
+  color-scheme:dark;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px);background:var(--bg)}
+*,*::before,*::after{box-sizing:inherit}
+body{
+  margin:0;background:var(--bg);color:var(--fg);
+  font-family:"Helvetica Neue",Helvetica,Arial,sans-serif;
+  background-image:radial-gradient(ellipse 80% 40% at 50% 0%,rgba(196,22,28,.28),transparent 70%);
+  background-repeat:no-repeat;
+  -webkit-tap-highlight-color:transparent;
+}
+main{max-width:760px;margin:0 auto;padding:12vh 20px 10vh}
+header{margin-bottom:9vh}
+.eyebrow{font-size:11px;letter-spacing:.4em;text-transform:uppercase;color:var(--red);margin:0 0 18px}
+h1{
+  margin:0;font-weight:800;text-transform:uppercase;
+  font-size:clamp(34px,9vw,76px);line-height:.95;letter-spacing:-.02em;
+}
+h1 span{color:var(--red)}
+.meta{margin:22px 0 0;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim)}
+ol{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+li{
+  display:grid;grid-template-columns:2.6em 1fr;gap:6px 10px;
+  padding:16px 4px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background .2s,opacity .2s;
+}
+li:hover{background:rgba(196,22,28,.07)}
+.n{font-size:13px;color:var(--red);font-variant-numeric:tabular-nums;padding-top:3px;letter-spacing:.08em}
+.t{font-size:clamp(16px,2.6vw,19px);font-weight:600;line-height:1.3;word-break:break-word}
+.a{display:block;margin-top:3px;font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim);font-weight:400}
+li.copied{background:rgba(196,22,28,.18)}
+#toast{
+  position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));
+  transform:translate(-50%,20px);opacity:0;pointer-events:none;
+  background:var(--red);color:#fff;padding:10px 20px;
+  font-size:12px;letter-spacing:.25em;text-transform:uppercase;
+  transition:opacity .2s,transform .2s;
+}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+footer{margin-top:9vh;font-size:11px;letter-spacing:.35em;text-transform:uppercase;color:var(--dim);text-align:center}
+@media (min-width:600px){
+  li{grid-template-columns:3.4em 1fr;padding:18px 8px}
+  .n{font-size:14px}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <p class="eyebrow">MORTENBOLEN</p>
+    <h1>Murder on<br>the <span>dance floor</span></h1>
+    <p class="meta">28 tracks</p>
+  </header>
+  <ol id="list"></ol>
+</main>
+<div id="toast">Copied</div>
+<script>
+const tracks=[
+["Glaskin/KYSH Records","Reverb (feat. Malwina)"],
+["DJ Dextro/Cardao","Obliteread Beauty"],
+["Sicion","Dancing Shadows"],
+["Filtrack","Uhhh…Spooky…I like it!"],
+["Åre:gone","Latin Lover"],
+["KUSS/Sicion","Dissolve to Evolve"],
+["Danny Wabbit","Go Get Some People"],
+["Sons Of Hidden","Forgotten Garden"],
+["Vinicius Honorio/Theo Nasa","Endless Love"],
+["Ocirala","No Fap Day 37"],
+["Dillect/BCCO","That Dog Won’t Hunt"],
+["KaioBarssalos","Latin Tool"],
+["Maeksll","Tragoidia"],
+["Childov","Formada"],
+["Ignez/Rødhåd","VERMILLION 03 [220208.2]"],
+["Zisko","I Don’t Think So"],
+["CVNSUMED","Fashion Victim"],
+["BENZA","Rite Of Passage"],
+["Shlomi Aber","Limelight"],
+["Regent","Decipher"],
+["Danny Wabbit","Don’t F*** With My Energy"],
+["Danny Wabbit","Gotta Kill Bill"],
+["Fhase 87","Colombia"],
+["Keyser/Rayme","Мальчики включают техно (Rayme Remix)"],
+["DJ Dextro","Fantasy (Original Mix) [Suara]"],
+["Rayme","Chaos Impulse (Original Mix)"],
+["Kangding Ray","En La Noche"],
+["Sons Of Hidden/Manuelita","Mystery Of Vibrate (Original Mix)"]
+];
+const list=document.getElementById("list");
+const toast=document.getElementById("toast");
+let timer;
+function fallbackCopy(text){
+  const ta=document.createElement("textarea");
+  ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+  document.body.appendChild(ta);ta.focus();ta.select();
+  let ok=false;
+  try{ok=document.execCommand("copy")}catch(e){}
+  document.body.removeChild(ta);
+  return ok;
+}
+async function copyText(text){
+  try{
+    if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(text);return true}
+  }catch(e){}
+  return fallbackCopy(text);
+}
+function flash(li,msg){
+  toast.textContent=msg;toast.classList.add("show");li.classList.add("copied");
+  clearTimeout(timer);
+  timer=setTimeout(()=>{toast.classList.remove("show");li.classList.remove("copied")},1200);
+}
+tracks.forEach((t,i)=>{
+  const li=document.createElement("li");
+  const n=document.createElement("span");n.className="n";n.textContent=String(i+1).padStart(2,"0");
+  const d=document.createElement("div");d.className="t";d.textContent=t[1];
+  const a=document.createElement("span");a.className="a";a.textContent=t[0];
+  d.appendChild(a);li.append(n,d);
+  li.addEventListener("click",async()=>{
+    const ok=await copyText(t[0]+" - "+t[1]);
+    flash(li,ok?"Copied":"Copy failed");
+  });
+  list.appendChild(li);
+});
+</script>
+</body>
+</html>
